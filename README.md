@@ -1,1 +1,52 @@
 # InvertedIndex-using-MapReduce
+
+-- SUMMARY --
+
+This is a README file for InvertedIndex program. InvertedIndexJob class includes main and run methods, and the inner classes Map and Reduce. It outputs the locations and the frequency of words in a particular page for each distinct word in the body of the wiki pages and saves the results to the output location in HDFS.
+
+Map function reads the documents line by line and finds the body of the page and gets individual words excluding the special characters. As an output of mapper, we need to emit word as key and page name in which it is present as value. 
+Reducer will receive Words as key and list of page names in which the word is present as value. If the word has occurred N times in the page, along with the page names its frequency is also captured. 
+
+-- REQUIREMENTS --
+
+HADOOP Environment or Cloudera VM.
+
+
+-- Running the program --
+
+* Before you run the sample, you must create input and output locations in HDFS. Use the following commands to create the input directory /user/cloudera/invertedIndex/input in HDFS:
+$ sudo su hdfs
+$ hadoop fs -mkdir /user/cloudera
+$ hadoop fs -chown cloudera /user/cloudera
+$ exit
+$ sudo su cloudera
+$ hadoop fs -mkdir /user/cloudera/invertedIndex /user/cloudera/invertedIndex/input 
+
+* Move the text files of the Wikipedia corpus provided to use as input, and move them to the/user/cloudera/invertedIndex/input directory in HDFS. 
+
+$ hadoop fs -put wiki* /user/cloudera/invertedIndex/input 
+
+* Compile the InvertedIndexJob class.
+To compile in a package installation of CDH:
+
+$ mkdir -p build
+$ javac -cp /usr/lib/hadoop/*:/usr/lib/hadoop-mapreduce/*:. InvertedIndexJob.java -d build -Xlint 
+
+* Create a JAR file for the InvertedIndexJob application.
+$ jar -cvf InvertedIndexJob.jar -C build/ . 
+
+* Run the InvertedIndexJob application from the JAR file, by passing the paths to the input path of document for Creating the Inverted index, and the output path of resulting inverted index
+$ hadoop jar InvertedIndexJob.jar InvertedIndexJob /user/cloudera/invertedIndex/input /user/cloudera/invertedIndex/output
+
+* Output can be seen using the below command:
+$ hadoop fs -cat /user/cloudera/invertedIndex/output/*
+
+* If you want to run the sample again, you first need to remove the output directory. Use the following command.
+$ hadoop fs -rm -r /user/cloudera/invertedIndex/output
+
+* If you want to copy the output to your local machine. Use the following command.
+$ hadoop fs -copyToLocal /user/cloudera/invertedIndex/output/*
+
+-- CONTACT --
+
+* Sampath Kumar Gunasekaran (sgunase2@uncc.edu)
